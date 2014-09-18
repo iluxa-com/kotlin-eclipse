@@ -30,5 +30,23 @@
             id="org.jetbrains.kotlin.core.KOTLIN_CONTAINER">
       </classpathContainerInitializer>
    </extension>
+   <extension
+         point="org.eclipse.debug.core.breakpoints">
+      <breakpoint
+            class="org.jetbrains.kotlin.core.debug.KotlinLineBreakpoint"
+            id="org.jetbrains.kotlin.core.debug.lineBreakpoint"
+            markerType="org.jetbrains.kotlin.core.debug.lineBreakpoint">
+      </breakpoint>
+   </extension>
+   <extension
+         id="org.jetbrains.kotlin.core.debug.lineBreakpoint"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.debug.core.lineBreakpointMarker">
+      </super>
+      <persistent
+            value="false">
+      </persistent>
+   </extension>
 
 </plugin>
