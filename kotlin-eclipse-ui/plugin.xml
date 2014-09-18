@@ -452,4 +452,14 @@
             type="org.eclipse.core.runtime.IAdaptable">
       </propertyTester>
    </extension>
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="org.jetbrains.kotlin.ui.editors.KotlinEditor"
+            class="org.jetbrains.kotlin.ui.debug.KotlinBreapointAdapterFactory">
+         <adapter
+               type="org.eclipse.debug.ui.actions.IToggleBreakpointsTarget">
+         </adapter>
+      </factory>
+   </extension>
 </plugin>

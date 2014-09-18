@@ -33,6 +33,7 @@ import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.core.log.KotlinLogger;
 import org.jetbrains.kotlin.ui.editors.quickassist.KotlinQuickAssistProcessor;
 import org.jetbrains.kotlin.ui.editors.quickfix.KotlinMarkerResolutionProposal;
@@ -63,7 +64,11 @@ public class KotlinCorrectionProcessor implements IQuickAssistProcessor {
         Position position = annotationModel.getPosition(annotation);
         try {
             IMarker marker = findMarkerAt(position.getOffset());
-            return IDE.getMarkerHelpRegistry().hasResolutions(marker);
+            if (marker != null) {
+                return IDE.getMarkerHelpRegistry().hasResolutions(marker);
+            }
+            
+            return false;
         } catch (CoreException e) {
             KotlinLogger.logError(e);
         }
@@ -107,6 +112,7 @@ public class KotlinCorrectionProcessor implements IQuickAssistProcessor {
         return proposals;
     }
     
+    @Nullable
     private IMarker findMarkerAt(int offset) throws CoreException {
         IFile file = EditorUtil.getFile(editor);
         
