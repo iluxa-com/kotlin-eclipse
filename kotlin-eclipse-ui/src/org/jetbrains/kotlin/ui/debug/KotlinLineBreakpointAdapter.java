@@ -40,17 +40,8 @@ public class KotlinLineBreakpointAdapter implements IToggleBreakpointsTarget {
         if (editor != null) {
             IResource resource = (IResource) editor.getEditorInput().getAdapter(IResource.class);
             int lineNumber = ((ITextSelection) selection).getStartLine() + 1;
-            
             IDocument document = editor.getDocumentProvider().getDocument(editor.getEditorInput());
-            JetFile kotlinParsedFile = KotlinPsiManager.getKotlinParsedFile((IFile) resource);
-            assert kotlinParsedFile != null;
-            
-            String typeName = null;
-            try {
-                typeName = findNearestTopType(document.getLineOffset(lineNumber - 1), kotlinParsedFile).asString();
-            } catch (BadLocationException e1) {
-                KotlinLogger.logAndThrow(e1);
-            }
+            String typeName = getTypeName(document, lineNumber, (IFile) resource);
             
             IJavaLineBreakpoint existingBreakpoint = JDIDebugModel.lineBreakpointExists(resource, typeName, lineNumber);
             if (existingBreakpoint != null) {
@@ -70,7 +61,6 @@ public class KotlinLineBreakpointAdapter implements IToggleBreakpointsTarget {
                 
                 IJavaLineBreakpoint br = JDIDebugModel.createLineBreakpoint(resource, typeName, lineNumber, charstart, charend, 0, true, attributes);
                 DebugPlugin.getDefault().getBreakpointManager().addBreakpoint(br);
-                
             }
         }
     }
@@ -101,6 +91,22 @@ public class KotlinLineBreakpointAdapter implements IToggleBreakpointsTarget {
     public boolean canToggleWatchpoints(IWorkbenchPart part, ISelection selection) {
         // TODO Auto-generated method stub
         return true;
+    }
+    
+    @NotNull
+    private String getTypeName(@NotNull IDocument document, int lineNumber, @NotNull IFile file) {
+        JetFile kotlinParsedFile = KotlinPsiManager.getKotlinParsedFile(file);
+        assert kotlinParsedFile != null;
+        
+        String typeName = null;
+        try {
+            typeName = findNearestTopType(document.getLineOffset(lineNumber - 1), kotlinParsedFile).asString();
+        } catch (BadLocationException e) {
+            KotlinLogger.logAndThrow(e);
+        }
+        
+        assert typeName != null;
+        return typeName;
     }
     
     @NotNull
