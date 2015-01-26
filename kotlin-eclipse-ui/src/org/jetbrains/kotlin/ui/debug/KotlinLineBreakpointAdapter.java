@@ -7,8 +7,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.model.IBreakpoint;
-import org.eclipse.debug.core.model.ILineBreakpoint;
 import org.eclipse.debug.ui.actions.IToggleBreakpointsTarget;
 import org.eclipse.jdt.debug.core.IJavaLineBreakpoint;
 import org.eclipse.jdt.debug.core.JDIDebugModel;
@@ -23,7 +21,6 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.core.builder.KotlinPsiManager;
-import org.jetbrains.kotlin.core.debug.KotlinLineBreakpoint;
 import org.jetbrains.kotlin.core.log.KotlinLogger;
 import org.jetbrains.kotlin.load.kotlin.PackageClassUtils;
 import org.jetbrains.kotlin.name.FqName;
@@ -138,22 +135,5 @@ public class KotlinLineBreakpointAdapter implements IToggleBreakpointsTarget {
         }
         
         return (ITextEditor) part.getAdapter(ITextEditor.class);
-    }
-    
-    @Nullable
-    private IBreakpoint getLineBreakpointAt(int lineNumber, @NotNull IResource resource) throws CoreException {
-        IBreakpoint[] breakpoints = DebugPlugin.getDefault().getBreakpointManager()
-                .getBreakpoints(KotlinLineBreakpoint.MODEL_IDENTIFIER);
-        for (IBreakpoint breakpoint : breakpoints) {
-            if (resource.equals(breakpoint.getMarker().getResource())) {
-                if (breakpoint instanceof ILineBreakpoint) {
-                    if (((ILineBreakpoint) breakpoint).getLineNumber() == lineNumber) {
-                        return breakpoint;
-                    }
-                }
-            }
-        }
-        
-        return null;
     }
 }
