@@ -462,4 +462,12 @@
          </adapter>
       </factory>
    </extension>
+   <extension
+         point="org.eclipse.ui.editors.markerUpdaters">
+      <updater
+            class="org.jetbrains.kotlin.ui.debug.KotlinBreakpointMarkerUpdater"
+            id="org.jetbrains.kotlin.ui.debug.markerUpdater"
+            markerType="org.jetbrains.kotlin.core.debug.lineBreakpoint">
+      </updater>
+   </extension>
 </plugin>
