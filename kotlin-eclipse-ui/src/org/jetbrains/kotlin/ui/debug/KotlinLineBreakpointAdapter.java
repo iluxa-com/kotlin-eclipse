@@ -1,8 +1,5 @@
 package org.jetbrains.kotlin.ui.debug;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -23,6 +20,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.core.builder.KotlinPsiManager;
+import org.jetbrains.kotlin.core.debug.KotlinLineBreakpoint;
 import org.jetbrains.kotlin.core.log.KotlinLogger;
 import org.jetbrains.kotlin.load.kotlin.PackageClassUtils;
 import org.jetbrains.kotlin.name.FqName;
@@ -46,20 +44,18 @@ public class KotlinLineBreakpointAdapter implements IToggleBreakpointsTarget {
             if (existingBreakpoint != null) {
                 existingBreakpoint.delete();
             } else {
-                Map<String, Object> attributes = new HashMap<String, Object>(10);
-                int charstart = -1, charend = -1;
+                int charStart = -1, charEnd = -1;
                 try {
                     IRegion line = document.getLineInformation(lineNumber - 1);
-                    charstart = line.getOffset();
-                    charend = charstart + line.getLength();
+                    charStart = line.getOffset();
+                    charEnd = charStart + line.getLength();
                 }   
                 catch (BadLocationException e) {
                     KotlinLogger.logAndThrow(e);
                 }
                 
-                
-                IJavaLineBreakpoint br = JDIDebugModel.createLineBreakpoint(resource, typeName, lineNumber, charstart, charend, 0, true, attributes);
-                DebugPlugin.getDefault().getBreakpointManager().addBreakpoint(br);
+                KotlinLineBreakpoint kotlinLineBreakpoint = KotlinLineBreakpoint.createKotlinLineBreakpoint(resource, typeName, lineNumber, charStart, charEnd);
+                DebugPlugin.getDefault().getBreakpointManager().addBreakpoint(kotlinLineBreakpoint);
             }
         }
     }
