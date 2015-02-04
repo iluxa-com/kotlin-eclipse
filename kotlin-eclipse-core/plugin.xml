@@ -45,6 +45,9 @@
       <persistent
             value="false">
       </persistent>
+      <super
+            type="org.eclipse.debug.core.lineBreakpointMarker">
+      </super>
    </extension>
 
 </plugin>
