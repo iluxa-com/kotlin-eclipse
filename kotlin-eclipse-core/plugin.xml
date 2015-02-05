@@ -43,7 +43,7 @@
          id="org.jetbrains.kotlin.core.debug.lineBreakpointMarker"
          point="org.eclipse.core.resources.markers">
       <persistent
-            value="false">
+            value="true">
       </persistent>
       <super
             type="org.eclipse.debug.core.lineBreakpointMarker">
