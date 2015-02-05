@@ -24,11 +24,13 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.core.builder.KotlinPsiManager;
+import org.jetbrains.kotlin.core.log.KotlinLogger;
 import org.jetbrains.kotlin.diagnostics.Diagnostic;
 import org.jetbrains.kotlin.diagnostics.Errors;
 import org.jetbrains.kotlin.diagnostics.Severity;
@@ -172,12 +174,17 @@ public class DiagnosticAnnotationUtil {
     
     public void updateAnnotations(@NotNull AbstractTextEditor editor, 
             @NotNull Map<IFile, List<DiagnosticAnnotation>> annotations) {
-        IFile file = EditorUtil.getFile(editor);
-
-        List<DiagnosticAnnotation> newAnnotations = annotations.get(file);
-        if (newAnnotations == null) {
-            newAnnotations = Collections.emptyList();
+        try {
+            IFile file = EditorUtil.getFile(editor);
+            
+            List<DiagnosticAnnotation> newAnnotations = annotations.get(file);
+            if (newAnnotations == null) {
+                newAnnotations = Collections.emptyList();
+            }
+            
+            AnnotationManager.updateRegionAnnotations(editor, newAnnotations);
+        } catch (CoreException e) {
+            KotlinLogger.logAndThrow(e);
         }
-        AnnotationManager.updateAnnotations(editor, newAnnotations);
     }
 }

@@ -27,6 +27,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.text.IDocument;
@@ -36,6 +37,7 @@ import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IAnnotationModelExtension;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.core.builder.KotlinPsiManager;
 import org.jetbrains.kotlin.core.log.KotlinLogger;
@@ -50,7 +52,7 @@ public class AnnotationManager {
     
     public static final String MARKER_PROBLEM_TYPE = IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER;
     
-    public static void updateAnnotations(@NotNull AbstractTextEditor editor, @NotNull List<DiagnosticAnnotation> annotations) {
+    public static void updateRegionAnnotations(@NotNull AbstractTextEditor editor, @NotNull List<DiagnosticAnnotation> annotations) throws CoreException {
         IDocumentProvider documentProvider = editor.getDocumentProvider();
         IDocument document = documentProvider.getDocument(editor.getEditorInput());
         
@@ -64,7 +66,15 @@ public class AnnotationManager {
             }
             List<Annotation> oldAnnotations = new ArrayList<Annotation>();
             for (Iterator<?> i = annotationModel.getAnnotationIterator(); i.hasNext();) {
-                oldAnnotations.add((Annotation) i.next());
+                Annotation next = (Annotation) i.next();
+                if (next instanceof MarkerAnnotation) {
+                    MarkerAnnotation markerAnnotation = (MarkerAnnotation) next;
+                    if (markerAnnotation.getMarker().isSubtypeOf(IBreakpoint.BREAKPOINT_MARKER)) {
+                        continue;
+                    }
+                }
+                
+                oldAnnotations.add(next);
             }
             
             modelExtension.replaceAnnotations(oldAnnotations.toArray(new Annotation[oldAnnotations.size()]), newAnnotations);
