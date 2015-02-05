@@ -74,7 +74,6 @@ public class KotlinReconcilingStrategy implements IReconcilingStrategy {
         Map<IFile, List<DiagnosticAnnotation>> annotations = DiagnosticAnnotationUtil.INSTANCE.handleDiagnostics(diagnostics);
         
         DiagnosticAnnotationUtil.INSTANCE.addParsingDiagnosticAnnotations(file, annotations);
-//        DiagnosticAnnotationUtil.INSTANCE.updateActiveEditorAnnotations(annotations);
         DiagnosticAnnotationUtil.INSTANCE.updateAnnotations(editor, annotations);
     }
     
