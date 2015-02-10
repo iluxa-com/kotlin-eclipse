@@ -2,6 +2,7 @@ package org.jetbrains.kotlin.aspects.debug.ui;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.launching.sourcelookup.containers.JavaSourceLookupParticipant;
+import org.jetbrains.kotlin.idea.JetFileType;
 
 public aspect KotlinSourceLookupAspect {
 
@@ -11,6 +12,10 @@ public aspect KotlinSourceLookupAspect {
 
 	String around(Object object) throws CoreException : getSourceName(object) {
 		String sourceName = proceed(object);
-		return KotlinSourceLookupNavigator.findKotlinFile(sourceName);
+		if (sourceName.endsWith(JetFileType.INSTANCE.getDefaultExtension())) {
+			return KotlinSourceLookupNavigator.findKotlinSourceFile(sourceName);
+		}
+		
+		return sourceName;
 	}
 }
