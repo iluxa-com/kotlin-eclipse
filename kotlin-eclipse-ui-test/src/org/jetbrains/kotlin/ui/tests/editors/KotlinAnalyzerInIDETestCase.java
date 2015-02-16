@@ -30,6 +30,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.eclipse.ui.utils.LineEndUtil;
 import org.jetbrains.kotlin.testframework.editor.KotlinEditorAutoTestCase;
+import org.jetbrains.kotlin.testframework.editor.KotlinEditorTestCase;
 import org.jetbrains.kotlin.testframework.utils.KotlinTestUtils;
 import org.jetbrains.kotlin.testframework.utils.SourceFileData;
 import org.junit.Assert;
@@ -44,6 +45,8 @@ public abstract class KotlinAnalyzerInIDETestCase extends KotlinEditorAutoTestCa
         try {
             configureProjectWithStdLibAndBuilder();
             file.touch(null);
+            
+            KotlinEditorTestCase.joinBuildThread();
             
             IMarker[] markers = file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
             String actual = insertTagsForErrors(loadEclipseFile(file), markers);
