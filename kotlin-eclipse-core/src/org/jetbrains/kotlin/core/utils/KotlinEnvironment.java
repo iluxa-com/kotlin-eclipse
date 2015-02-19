@@ -65,6 +65,7 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.extensions.Extensions;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
@@ -78,12 +79,6 @@ public class KotlinEnvironment {
     public final static String KT_JDK_ANNOTATIONS_PATH = ProjectUtils.buildLibPath("kotlin-jdk-annotations");
     public final static String KOTLIN_RUNTIME_PATH = ProjectUtils.buildLibPath("kotlin-compiler");
     
-    private static final Disposable DISPOSABLE = new Disposable() {
-        @Override
-        public void dispose() {
-        }
-    };
-    
     private static final ConcurrentMap<IJavaProject, KotlinEnvironment> cachedEnvironment = new ConcurrentHashMap<>();
     
     private final JavaCoreApplicationEnvironment applicationEnvironment;
@@ -93,12 +88,12 @@ public class KotlinEnvironment {
     
     private final ClassPath classPath = new ClassPath();
     
-    private KotlinEnvironment(@NotNull IJavaProject javaProject) {
+    private KotlinEnvironment(@NotNull IJavaProject javaProject, @NotNull Disposable disposable) {
         this.javaProject = javaProject;
         
-        applicationEnvironment = createJavaCoreApplicationEnvironment();
+        applicationEnvironment = createJavaCoreApplicationEnvironment(disposable);
         
-        projectEnvironment = new JavaCoreProjectEnvironment(DISPOSABLE, applicationEnvironment);
+        projectEnvironment = new JavaCoreProjectEnvironment(disposable, applicationEnvironment);
         
         project = projectEnvironment.getProject();
         
@@ -147,14 +142,18 @@ public class KotlinEnvironment {
     @NotNull
     public static KotlinEnvironment getEnvironment(IJavaProject javaProject) {
         if (!cachedEnvironment.containsKey(javaProject)) {
-            cachedEnvironment.put(javaProject, new KotlinEnvironment(javaProject));
+            cachedEnvironment.put(javaProject, new KotlinEnvironment(javaProject, Disposer.newDisposable()));
         }
         
         return cachedEnvironment.get(javaProject);
     }
     
     public static void updateKotlinEnvironment(IJavaProject javaProject) {
-        cachedEnvironment.put(javaProject, new KotlinEnvironment(javaProject));
+        if (cachedEnvironment.containsKey(javaProject)) {
+            KotlinEnvironment environment = cachedEnvironment.get(javaProject);
+            Disposer.dispose(environment.getJavaApplicationEnvironment().getParentDisposable());
+        }
+        cachedEnvironment.put(javaProject, new KotlinEnvironment(javaProject, Disposer.newDisposable()));
     }
     
     @Nullable
@@ -191,8 +190,8 @@ public class KotlinEnvironment {
         }
     }
     
-    private JavaCoreApplicationEnvironment createJavaCoreApplicationEnvironment() {
-        JavaCoreApplicationEnvironment javaApplicationEnvironment = new JavaCoreApplicationEnvironment(DISPOSABLE);
+    private JavaCoreApplicationEnvironment createJavaCoreApplicationEnvironment(@NotNull Disposable disposable) {
+        JavaCoreApplicationEnvironment javaApplicationEnvironment = new JavaCoreApplicationEnvironment(disposable);
         
         // ability to get text from annotations xml files
         javaApplicationEnvironment.registerFileType(PlainTextFileType.INSTANCE, "xml");
@@ -264,10 +263,6 @@ public class KotlinEnvironment {
     @NotNull
     public Project getProject() {
         return project;
-    }
-    
-    public JavaCoreProjectEnvironment getProjectEnvironment() {
-        return projectEnvironment;
     }
     
     @NotNull
