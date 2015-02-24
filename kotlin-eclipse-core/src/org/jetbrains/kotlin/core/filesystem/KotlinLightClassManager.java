@@ -9,8 +9,8 @@ import java.util.concurrent.ConcurrentMap;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.kotlin.psi.JetFile;
 import org.jetbrains.kotlin.core.builder.KotlinPsiManager;
+import org.jetbrains.kotlin.psi.JetFile;
 
 import com.google.common.collect.Lists;
 
@@ -22,8 +22,8 @@ public class KotlinLightClassManager {
     private KotlinLightClassManager() {
     }
     
-    public void putClass(@NotNull File lightClass, @NotNull List<File> sourceIOFiles) {
-        sourceFiles.put(lightClass, sourceIOFiles);
+    public void putClass(@NotNull File file, @NotNull List<File> sourceIOFiles) {
+        sourceFiles.put(file, sourceIOFiles);
     }
     
     public boolean isLightClass(@NotNull File file) {
@@ -31,8 +31,8 @@ public class KotlinLightClassManager {
     }
     
     @NotNull
-    public List<JetFile> getSourceFiles(@NotNull File lightClass) {
-        List<File> sourceIOFiles = sourceFiles.get(lightClass);
+    public List<JetFile> getSourceFiles(@NotNull File file) {
+        List<File> sourceIOFiles = sourceFiles.get(file);
         if (sourceIOFiles != null) {
             List<JetFile> jetSourceFiles = Lists.newArrayList();
             for (File sourceFile : sourceIOFiles) {
