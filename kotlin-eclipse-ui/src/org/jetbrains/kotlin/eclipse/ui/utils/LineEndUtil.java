@@ -16,6 +16,10 @@
  *******************************************************************************/
 package org.jetbrains.kotlin.eclipse.ui.utils;
 
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.TextUtilities;
+import org.jetbrains.annotations.NotNull;
+
 public class LineEndUtil {
     
     public static final char CARRIAGE_RETURN_CHAR = '\r';
@@ -23,13 +27,13 @@ public class LineEndUtil {
     public static final char NEW_LINE_CHAR = '\n';
     public static final String NEW_LINE_STRING = Character.toString(NEW_LINE_CHAR);
     
-    public static int convertLfToOsOffset(String lfText, int lfOffset) {
-        String osLineSeparator = System.lineSeparator();
-        if (osLineSeparator.length() == 1) {
+    public static int convertLfToDocumentOffset(@NotNull String lfText, int lfOffset, @NotNull IDocument document) {
+        String documentLineSeparator = TextUtilities.getDefaultLineDelimiter(document);
+        if (documentLineSeparator.length() == 1) {
             return lfOffset;
         }
         
-        assertLineSeparator(osLineSeparator);
+        assertLineSeparator(documentLineSeparator);
         
         // In CrLf move to new line takes 2 char instead of 1 in Lf
         return lfOffset + offsetToLineNumber(lfText, lfOffset);

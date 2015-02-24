@@ -74,7 +74,7 @@ public class DiagnosticAnnotationUtil {
                 annotations.put(curFile, new ArrayList<DiagnosticAnnotation>());
             }
             
-            DiagnosticAnnotation annotation = createKotlinAnnotation(diagnostic);
+            DiagnosticAnnotation annotation = createKotlinAnnotation(diagnostic, curFile);
             annotations.get(curFile).add(annotation);
         }
         
@@ -93,18 +93,18 @@ public class DiagnosticAnnotationUtil {
     
     @NotNull
     public List<DiagnosticAnnotation> createParsingDiagnosticAnnotations(@NotNull IFile file) {
-        return recursiveCreateParsingDiagnosticAnnotations(KotlinPsiManager.INSTANCE.getParsedFile(file));
+        return recursiveCreateParsingDiagnosticAnnotations(KotlinPsiManager.INSTANCE.getParsedFile(file), file);
     }
     
     @NotNull
-    private List<DiagnosticAnnotation> recursiveCreateParsingDiagnosticAnnotations(@NotNull PsiElement psiElement) {
+    private List<DiagnosticAnnotation> recursiveCreateParsingDiagnosticAnnotations(@NotNull PsiElement psiElement, @NotNull IFile file) {
         List<DiagnosticAnnotation> result = new ArrayList<DiagnosticAnnotation>();
         
         if (psiElement instanceof PsiErrorElement) {
-            result.add(createKotlinAnnotation((PsiErrorElement) psiElement));
+            result.add(createKotlinAnnotation((PsiErrorElement) psiElement, file));
         } else {
             for (PsiElement child : psiElement.getChildren()) {
-                result.addAll(recursiveCreateParsingDiagnosticAnnotations(child));
+                result.addAll(recursiveCreateParsingDiagnosticAnnotations(child, file));
             }
         }
 
@@ -112,11 +112,11 @@ public class DiagnosticAnnotationUtil {
     }
     
     @NotNull
-    private DiagnosticAnnotation createKotlinAnnotation(@NotNull PsiErrorElement psiErrorElement) {
+    private DiagnosticAnnotation createKotlinAnnotation(@NotNull PsiErrorElement psiErrorElement, @NotNull IFile file) {
         PsiFile psiFile = psiErrorElement.getContainingFile();
         
         TextRange range = psiErrorElement.getTextRange();
-        int startOffset = range.getStartOffset();
+        int startOffset = LineEndUtil.convertLfToDocumentOffset(psiFile.getText(), range.getStartOffset(), EditorUtil.getDocument(file));
         int length = range.getLength();
         String markedText = psiErrorElement.getText();
         
@@ -126,7 +126,6 @@ public class DiagnosticAnnotationUtil {
             markedText = psiFile.getText().substring(startOffset, startOffset + length);
         }
         
-        startOffset = getOffset(psiFile, range.getStartOffset());
         if (range.isEmpty()) {
             startOffset--;
         }
@@ -141,20 +140,16 @@ public class DiagnosticAnnotationUtil {
     }
     
     @NotNull
-    private DiagnosticAnnotation createKotlinAnnotation(@NotNull Diagnostic diagnostic) {
+    private DiagnosticAnnotation createKotlinAnnotation(@NotNull Diagnostic diagnostic, @NotNull IFile file) {
         TextRange range = diagnostic.getTextRanges().get(0);
-
         return new DiagnosticAnnotation(
-                getOffset(diagnostic.getPsiFile(), range.getStartOffset()),
+                LineEndUtil.convertLfToDocumentOffset(diagnostic.getPsiFile().getText(), 
+                        range.getStartOffset(), EditorUtil.getDocument(file)),
                 range.getLength(),
                 getAnnotationType(diagnostic.getSeverity()), 
                 DefaultErrorMessages.render(diagnostic),
                 diagnostic.getPsiElement().getText(),
                 Errors.UNRESOLVED_REFERENCE.equals(diagnostic.getFactory()));
-    }
-    
-    private int getOffset(@NotNull PsiFile psiFile, int startOffset) {
-        return LineEndUtil.convertLfToOsOffset(psiFile.getText(), startOffset);
     }
     
     @Nullable
