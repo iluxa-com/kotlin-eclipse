@@ -118,7 +118,7 @@ public class DiagnosticAnnotationUtil {
         PsiFile psiFile = psiErrorElement.getContainingFile();
         
         TextRange range = psiErrorElement.getTextRange();
-        int startOffset = LineEndUtil.convertLfToDocumentOffset(psiFile.getText(), range.getStartOffset(), EditorUtil.getDocument(file));
+        int startOffset = range.getStartOffset();
         int length = range.getLength();
         String markedText = psiErrorElement.getText();
         
@@ -133,7 +133,7 @@ public class DiagnosticAnnotationUtil {
         }
         
         return new DiagnosticAnnotation(
-                startOffset,
+                LineEndUtil.convertLfToDocumentOffset(psiFile.getText(), range.getStartOffset(), EditorUtil.getDocument(file)),
                 length,
                 AnnotationManager.ANNOTATION_ERROR_TYPE,
                 psiErrorElement.getErrorDescription(),
