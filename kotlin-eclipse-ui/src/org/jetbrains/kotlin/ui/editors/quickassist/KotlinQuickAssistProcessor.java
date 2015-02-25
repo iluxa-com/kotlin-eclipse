@@ -20,7 +20,8 @@ public class KotlinQuickAssistProcessor implements IQuickAssistProcessor {
     @Override
     public IJavaCompletionProposal[] getAssists(IInvocationContext context, IProblemLocation[] locations)
             throws CoreException {
-        List<KotlinQuickAssistProposal> allProposals = getKotlinQuickAssistProposals();
+        List<KotlinQuickAssistProposal> allProposals = getSingleKotlinQuickAssistProposals();
+        allProposals.addAll(generateKotlinQuickAssistProposals());
         
         List<IJavaCompletionProposal> applicableProposals = Lists.newArrayList();
         for (KotlinQuickAssistProposal proposal : allProposals) {
@@ -32,7 +33,7 @@ public class KotlinQuickAssistProcessor implements IQuickAssistProcessor {
         return applicableProposals.toArray(new IJavaCompletionProposal[applicableProposals.size()]);
     }
     
-    private List<KotlinQuickAssistProposal> getKotlinQuickAssistProposals() {
+    private List<KotlinQuickAssistProposal> getSingleKotlinQuickAssistProposals() {
         List<KotlinQuickAssistProposal> proposals = Lists.newArrayList();
         
         proposals.add(new KotlinReplaceGetAssistProposal());
@@ -40,5 +41,13 @@ public class KotlinQuickAssistProcessor implements IQuickAssistProcessor {
         
         return proposals;
     }
-
+    
+    
+    private List<KotlinQuickAssistProposal> generateKotlinQuickAssistProposals() {
+        List<KotlinQuickAssistProposal> proposalsGenerators = Lists.newArrayList();
+        
+        proposalsGenerators.addAll(new KotlinAutoImportProposalsGenerator().getProposals());
+        
+        return proposalsGenerators;
+    }
 }

@@ -19,6 +19,7 @@ package org.jetbrains.kotlin.ui.editors;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +28,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.source.Annotation;
+import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -185,5 +187,24 @@ public class DiagnosticAnnotationUtil {
         } catch (CoreException e) {
             KotlinLogger.logAndThrow(e);
         }
+    }
+    
+    @Nullable
+    public DiagnosticAnnotation getAnnotationByOffset(@NotNull AbstractTextEditor editor, int offset) {
+        IAnnotationModel annotationModel = editor.getDocumentProvider().getAnnotationModel(editor.getEditorInput());
+        Iterator<?> annotationIterator = annotationModel.getAnnotationIterator();
+        while (annotationIterator.hasNext()) {
+            Annotation annotation = (Annotation) annotationIterator.next();
+            if (annotation instanceof DiagnosticAnnotation) {
+                DiagnosticAnnotation diagnosticAnnotation = (DiagnosticAnnotation) annotation;
+                
+                TextRange range = diagnosticAnnotation.getRange();
+                if (range.getStartOffset() <= offset && range.getEndOffset() >= offset) {
+                    return diagnosticAnnotation;
+                }
+            }
+        }
+        
+        return null;
     }
 }
