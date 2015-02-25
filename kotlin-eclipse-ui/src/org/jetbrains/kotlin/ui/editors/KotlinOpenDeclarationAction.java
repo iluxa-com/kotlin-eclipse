@@ -34,6 +34,7 @@ import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jdt.ui.actions.IJavaEditorActionDefinitionIds;
 import org.eclipse.jdt.ui.actions.SelectionDispatchAction;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.util.OpenStrategy;
 import org.eclipse.ui.IEditorPart;
@@ -185,7 +186,7 @@ public class KotlinOpenDeclarationAction extends SelectionDispatchAction {
     
     @Nullable
     public static JetReferenceExpression getSelectedExpression(@NotNull JavaEditor editor, @NotNull IFile file, int offset) {
-        offset = LineEndUtil.convertCrToOsOffset(editor.getViewer().getDocument().get(), offset);
+        offset = LineEndUtil.convertCrToDocumentOffset(editor.getViewer().getDocument(), offset);
         
         PsiElement psiExpression = KotlinPsiManager.INSTANCE.getParsedFile(file).findElementAt(offset);
         if (psiExpression == null) {
