@@ -56,7 +56,7 @@ public class KotlinAutoImportAssistProposal extends KotlinQuickAssistProposal {
 
     @Override
     public boolean isApplicable(@NotNull PsiElement psiElement) {
-        return true;
+        return super.isApplicable();
     }
     
     @Override
