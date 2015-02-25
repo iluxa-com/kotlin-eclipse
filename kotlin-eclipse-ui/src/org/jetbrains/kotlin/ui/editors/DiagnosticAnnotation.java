@@ -17,12 +17,14 @@
 package org.jetbrains.kotlin.ui.editors;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.jface.text.Position;
+import org.eclipse.jface.text.quickassist.IQuickFixableAnnotation;
 import org.eclipse.jface.text.source.Annotation;
 
 import com.intellij.openapi.util.TextRange;
 
-public class DiagnosticAnnotation extends Annotation {
+public class DiagnosticAnnotation extends Annotation implements IQuickFixableAnnotation {
 
     private final TextRange range;
     private final String markedText;
@@ -65,8 +67,18 @@ public class DiagnosticAnnotation extends Annotation {
     public String getMarkedText() {
         return markedText;
     }
-    
-    public boolean quickFixable() {
+
+    @Override
+    public void setQuickFixable(boolean state) {
+    }
+
+    @Override
+    public boolean isQuickFixableStateSet() {
+        return false;
+    }
+
+    @Override
+    public boolean isQuickFixable() throws AssertionFailedException {
         return isQuickFixable;
     }
 }

@@ -19,14 +19,18 @@ package org.jetbrains.kotlin.ui.editors;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.source.Annotation;
+import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -185,5 +189,42 @@ public class DiagnosticAnnotationUtil {
         } catch (CoreException e) {
             KotlinLogger.logAndThrow(e);
         }
+    }
+    
+    @Nullable
+    public DiagnosticAnnotation getAnnotationByOffset(@NotNull AbstractTextEditor editor, int offset) {
+        IAnnotationModel annotationModel = editor.getDocumentProvider().getAnnotationModel(editor.getEditorInput());
+        Iterator<?> annotationIterator = annotationModel.getAnnotationIterator();
+        while (annotationIterator.hasNext()) {
+            Annotation annotation = (Annotation) annotationIterator.next();
+            if (annotation instanceof DiagnosticAnnotation) {
+                DiagnosticAnnotation diagnosticAnnotation = (DiagnosticAnnotation) annotation;
+                
+                TextRange range = diagnosticAnnotation.getRange();
+                if (range.getStartOffset() <= offset && range.getEndOffset() >= offset) {
+                    return diagnosticAnnotation;
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    @Nullable
+    public IMarker getMarkerByOffset(@NotNull IFile file, int offset) {
+        try {
+            IMarker[] markers = file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
+            for (IMarker marker: markers) {
+                int startOffset = (int) marker.getAttribute(IMarker.CHAR_START);
+                int endOffset = (int) marker.getAttribute(IMarker.CHAR_END);
+                if (startOffset <= offset && offset <= endOffset) {
+                    return marker;
+                }
+            }
+        } catch (CoreException e) {
+            KotlinLogger.logAndThrow(e);
+        }
+        
+        return null;
     }
 }
