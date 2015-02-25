@@ -4,8 +4,11 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.ui.ISharedImages;
+import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.core.builder.KotlinPsiManager;
@@ -54,6 +57,11 @@ public class KotlinAutoImportAssistProposal extends KotlinQuickAssistProposal {
     @Override
     public boolean isApplicable(@NotNull PsiElement psiElement) {
         return true;
+    }
+    
+    @Override
+    public Image getImage() {
+        return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_IMPDECL);
     }
 
     @Override
