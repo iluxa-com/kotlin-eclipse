@@ -89,7 +89,7 @@ public class AnnotationManager {
             problemMarker.setAttribute(IMarker.CHAR_START, annotation.getRange().getStartOffset());
             problemMarker.setAttribute(IMarker.CHAR_END, annotation.getRange().getEndOffset());
             problemMarker.setAttribute(MARKED_TEXT, annotation.getMarkedText());
-            problemMarker.setAttribute(IS_QUICK_FIXABLE, annotation.isQuickFixable());
+            problemMarker.setAttribute(IS_QUICK_FIXABLE, annotation.getDiagnostic());
         } catch (CoreException e) {
             KotlinLogger.logAndThrow(e);
         }

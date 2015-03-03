@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.core.log.KotlinLogger;
+import org.jetbrains.kotlin.diagnostics.DiagnosticFactory;
 import org.jetbrains.kotlin.eclipse.ui.utils.EditorUtil;
 import org.jetbrains.kotlin.ui.editors.AnnotationManager;
 import org.jetbrains.kotlin.ui.editors.DiagnosticAnnotation;
@@ -54,12 +55,20 @@ public class KotlinAutoImportProposalsGenerator extends KotlinQuickAssistProposa
         int caretOffset = getCaretOffset(editor);
         DiagnosticAnnotation annotation = DiagnosticAnnotationUtil.INSTANCE.getAnnotationByOffset(editor, caretOffset);
         if (annotation != null) {
-            return annotation.isQuickFixable();
+            DiagnosticFactory<?> diagnostic = annotation.getDiagnostic();
+            return diagnostic != null ? DiagnosticAnnotationUtil.isUnresolvedReference(diagnostic) : false;
         }
         
         IMarker marker = DiagnosticAnnotationUtil.INSTANCE.getMarkerByOffset(EditorUtil.getFile(editor), caretOffset);
-        if (marker != null) {
-            return marker.getAttribute(AnnotationManager.IS_QUICK_FIXABLE, false);
+        return marker != null ? isMarkerUnresolverReference(marker) : false;
+    }
+    
+    private boolean isMarkerUnresolverReference(@NotNull IMarker marker) {
+        try {
+            DiagnosticFactory<?> diagnostic = (DiagnosticFactory<?>) marker.getAttribute(AnnotationManager.IS_QUICK_FIXABLE);
+            return diagnostic != null ? DiagnosticAnnotationUtil.isUnresolvedReference(diagnostic) : false;
+        } catch (CoreException e) {
+            KotlinLogger.logAndThrow(e);
         }
         
         return false;
@@ -71,7 +80,7 @@ public class KotlinAutoImportProposalsGenerator extends KotlinQuickAssistProposa
         List<IType> searchCollector = new ArrayList<IType>();
         TypeNameMatchRequestor requestor = new KotlinSearchTypeRequestor(searchCollector);
         try {
-            SearchEngine searchEngine = new SearchEngine(); // make static?
+            SearchEngine searchEngine = new SearchEngine(); 
             searchEngine.searchAllTypeNames(null, 
                     SearchPattern.R_EXACT_MATCH, 
                     typeName.toCharArray(), 

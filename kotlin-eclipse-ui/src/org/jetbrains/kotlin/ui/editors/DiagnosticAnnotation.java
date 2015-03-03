@@ -17,30 +17,31 @@
 package org.jetbrains.kotlin.ui.editors;
 
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.jface.text.Position;
-import org.eclipse.jface.text.quickassist.IQuickFixableAnnotation;
 import org.eclipse.jface.text.source.Annotation;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.diagnostics.DiagnosticFactory;
 
 import com.intellij.openapi.util.TextRange;
 
-public class DiagnosticAnnotation extends Annotation implements IQuickFixableAnnotation {
+public class DiagnosticAnnotation extends Annotation {
 
     private final TextRange range;
     private final String markedText;
-    private final boolean isQuickFixable;
+    private final DiagnosticFactory<?> diagnosticFactory;
     
-    public DiagnosticAnnotation(TextRange position, String annotationType, String message, 
-            String markedText, boolean isQuickFixable) {
+    public DiagnosticAnnotation(@NotNull TextRange position, @NotNull String annotationType, @NotNull String message, 
+            @NotNull String markedText, @Nullable DiagnosticFactory<?> diagnosticFactory) {
         super(annotationType, true, message);
         this.range = position;
         this.markedText = markedText;
-        this.isQuickFixable = isQuickFixable;
+        this.diagnosticFactory = diagnosticFactory;
     }
     
-    public DiagnosticAnnotation(int offset, int length, String annotationType, String message, 
-            String markedText, boolean isQuickFixable) {
-        this(new TextRange(offset, offset + length), annotationType, message, markedText, isQuickFixable);
+    public DiagnosticAnnotation(int offset, int length, @NotNull String annotationType, @NotNull String message, 
+            @NotNull String markedText, @Nullable DiagnosticFactory<?> diagnosticFactory) {
+        this(new TextRange(offset, offset + length), annotationType, message, markedText, diagnosticFactory);
     }
     
     public TextRange getRange() {
@@ -67,18 +68,9 @@ public class DiagnosticAnnotation extends Annotation implements IQuickFixableAnn
     public String getMarkedText() {
         return markedText;
     }
-
-    @Override
-    public void setQuickFixable(boolean state) {
-    }
-
-    @Override
-    public boolean isQuickFixableStateSet() {
-        return false;
-    }
-
-    @Override
-    public boolean isQuickFixable() throws AssertionFailedException {
-        return isQuickFixable;
+    
+    @Nullable
+    public DiagnosticFactory<?> getDiagnostic() {
+        return diagnosticFactory;
     }
 }

@@ -55,9 +55,6 @@ public class KotlinCorrectionProcessor implements IQuickAssistProcessor {
 
     @Override
     public boolean canFix(Annotation annotation) {
-        if (annotation instanceof DiagnosticAnnotation) {
-            return ((DiagnosticAnnotation) annotation).isQuickFixable();
-        }
         IDocumentProvider documentProvider = editor.getDocumentProvider();
         IAnnotationModel annotationModel = documentProvider.getAnnotationModel(editor.getEditorInput());
         

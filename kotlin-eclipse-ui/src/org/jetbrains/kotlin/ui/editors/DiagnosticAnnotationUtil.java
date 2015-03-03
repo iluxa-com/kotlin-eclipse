@@ -37,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.core.builder.KotlinPsiManager;
 import org.jetbrains.kotlin.core.log.KotlinLogger;
 import org.jetbrains.kotlin.diagnostics.Diagnostic;
+import org.jetbrains.kotlin.diagnostics.DiagnosticFactory;
 import org.jetbrains.kotlin.diagnostics.Errors;
 import org.jetbrains.kotlin.diagnostics.Severity;
 import org.jetbrains.kotlin.diagnostics.rendering.DefaultErrorMessages;
@@ -140,7 +141,7 @@ public class DiagnosticAnnotationUtil {
                 AnnotationManager.ANNOTATION_ERROR_TYPE,
                 psiErrorElement.getErrorDescription(),
                 markedText,
-                false);
+                null);
     }
     
     @NotNull
@@ -153,22 +154,24 @@ public class DiagnosticAnnotationUtil {
                 getAnnotationType(diagnostic.getSeverity()), 
                 DefaultErrorMessages.render(diagnostic),
                 diagnostic.getPsiElement().getText(),
-                Errors.UNRESOLVED_REFERENCE.equals(diagnostic.getFactory()));
+                diagnostic.getFactory());
     }
     
-    @Nullable
+    @NotNull
     private String getAnnotationType(@NotNull Severity severity) {
         String annotationType = null;
         switch (severity) {
             case ERROR:
                 annotationType = AnnotationManager.ANNOTATION_ERROR_TYPE;
                 break;
-            case WARNING:
+            case WARNING: case INFO:
                 annotationType = AnnotationManager.ANNOTATION_WARNING_TYPE;
                 break;
             default:
                 break;
         }
+        
+        assert annotationType != null;
         
         return annotationType;
     }
@@ -226,5 +229,9 @@ public class DiagnosticAnnotationUtil {
         }
         
         return null;
+    }
+
+    public static boolean isUnresolvedReference(@NotNull DiagnosticFactory<?> diagnostic) {
+        return Errors.UNRESOLVED_REFERENCE.equals(diagnostic);
     }
 }
