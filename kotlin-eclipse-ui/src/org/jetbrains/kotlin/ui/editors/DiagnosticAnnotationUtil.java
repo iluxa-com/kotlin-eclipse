@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
@@ -203,6 +205,24 @@ public class DiagnosticAnnotationUtil {
                     return diagnosticAnnotation;
                 }
             }
+        }
+        
+        return null;
+    }
+    
+    @Nullable
+    public IMarker getMarkerByOffset(@NotNull IFile file, int offset) {
+        try {
+            IMarker[] markers = file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
+            for (IMarker marker: markers) {
+                int startOffset = (int) marker.getAttribute(IMarker.CHAR_START);
+                int endOffset = (int) marker.getAttribute(IMarker.CHAR_END);
+                if (startOffset <= offset && offset <= endOffset) {
+                    return marker;
+                }
+            }
+        } catch (CoreException e) {
+            KotlinLogger.logAndThrow(e);
         }
         
         return null;

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IType;
@@ -15,6 +16,8 @@ import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.core.log.KotlinLogger;
+import org.jetbrains.kotlin.eclipse.ui.utils.EditorUtil;
+import org.jetbrains.kotlin.ui.editors.AnnotationManager;
 import org.jetbrains.kotlin.ui.editors.DiagnosticAnnotation;
 import org.jetbrains.kotlin.ui.editors.DiagnosticAnnotationUtil;
 import org.jetbrains.kotlin.ui.editors.KotlinEditor;
@@ -60,8 +63,18 @@ public class KotlinAutoImportProposalsGenerator extends KotlinQuickAssistProposa
             return false;
         }
         
-        DiagnosticAnnotation annotation = DiagnosticAnnotationUtil.INSTANCE.getAnnotationByOffset(editor, getCaretOffset(editor));
-        return annotation != null ? annotation.isQuickFixable() : false;
+        int caretOffset = getCaretOffset(editor);
+        DiagnosticAnnotation annotation = DiagnosticAnnotationUtil.INSTANCE.getAnnotationByOffset(editor, caretOffset);
+        if (annotation != null) {
+            return annotation.isQuickFixable();
+        }
+        
+        IMarker marker = DiagnosticAnnotationUtil.INSTANCE.getMarkerByOffset(EditorUtil.getFile(editor), caretOffset);
+        if (marker != null) {
+            return marker.getAttribute(AnnotationManager.IS_QUICK_FIXABLE, false);
+        }
+        
+        return false;
     }
     
     @NotNull
