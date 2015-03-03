@@ -1,7 +1,6 @@
 package org.jetbrains.kotlin.ui.editors.quickassist;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
@@ -23,34 +22,23 @@ import org.jetbrains.kotlin.ui.editors.DiagnosticAnnotationUtil;
 import org.jetbrains.kotlin.ui.editors.KotlinEditor;
 import org.jetbrains.kotlin.ui.editors.quickfix.KotlinSearchTypeRequestor;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.intellij.psi.PsiElement;
 
 public class KotlinAutoImportProposalsGenerator extends KotlinQuickAssistProposalsGenerator {
-
     @Override
     @NotNull
     protected List<KotlinQuickAssistProposal> getProposals(@NotNull KotlinEditor kotlinEditor,
             @NotNull PsiElement psiElement) {
-        Collection<IType> typeResolutions = Collections2.filter(findAllTypes(psiElement.getText()), new Predicate<IType>() {
-            
-            @Override
-            public boolean apply(IType type) {
-                try {
-                    return Flags.isPublic(type.getFlags());
-                } catch (JavaModelException e) {
-                    KotlinLogger.logAndThrow(e);
-                }
-                
-                return false;
-            }
-        });
-        
         List<KotlinQuickAssistProposal> assistProposals = Lists.newArrayList();
-        for (IType type : typeResolutions) {
-            assistProposals.add(new KotlinAutoImportAssistProposal(type));
+        try {
+            for (IType type : findAllTypes(psiElement.getText())) {
+                if (Flags.isPublic(type.getFlags())) {
+                    assistProposals.add(new KotlinAutoImportAssistProposal(type));
+                }
+            }
+        } catch (JavaModelException e) {
+            KotlinLogger.logAndThrow(e);
         }
         
         return assistProposals;
