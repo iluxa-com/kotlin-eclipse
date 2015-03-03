@@ -85,7 +85,7 @@ public abstract class KotlinAutoImportTestCase extends KotlinEditorWithAfterFile
         for (ICompletionProposal proposal : proposals) {
         	if (proposal instanceof KotlinAutoImportAssistProposal) {
 				KotlinAutoImportAssistProposal autoImportProposal = (KotlinAutoImportAssistProposal) proposal;
-				result.add(autoImportProposal.getProposalType().getFullyQualifiedName('.'));
+				result.add(autoImportProposal.getFqName());
         	}
         }
         
