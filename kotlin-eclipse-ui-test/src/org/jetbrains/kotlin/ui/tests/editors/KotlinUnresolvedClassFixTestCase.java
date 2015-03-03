@@ -17,13 +17,15 @@
 package org.jetbrains.kotlin.ui.tests.editors;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.ui.IMarkerResolution;
-import org.eclipse.ui.ide.IDE;
+import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.source.TextInvocationContext;
 import org.jetbrains.kotlin.eclipse.ui.utils.LineEndUtil;
 import org.jetbrains.kotlin.testframework.editor.KotlinEditorTestCase;
 import org.jetbrains.kotlin.testframework.editor.KotlinProjectTestCase;
@@ -31,6 +33,7 @@ import org.jetbrains.kotlin.testframework.editor.TextEditorTest;
 import org.jetbrains.kotlin.testframework.utils.EditorTestUtils;
 import org.jetbrains.kotlin.testframework.utils.KotlinTestUtils;
 import org.jetbrains.kotlin.testframework.utils.SourceFileData;
+import org.jetbrains.kotlin.ui.editors.KotlinCorrectionProcessor;
 import org.junit.Before;
 
 public class KotlinUnresolvedClassFixTestCase extends KotlinProjectTestCase {
@@ -50,15 +53,15 @@ public class KotlinUnresolvedClassFixTestCase extends KotlinProjectTestCase {
 				createSourceFile(data.getFileName(), data.getContent());
 			}
 		}
-
+		
 		testEditor.save();
 		KotlinTestUtils.joinBuildThread();
-
+		
 		try {
 			IMarker[] markers = testEditor.getEditingFile().findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
-			List<IMarkerResolution> resolutions = collectResolutions(markers);
-			for (IMarkerResolution resolution : resolutions) {
-				resolution.run(null);
+			List<ICompletionProposal> proposals = createProposals(testEditor.getEditor(), markers);
+			for (ICompletionProposal proposal: proposals) {
+				proposal.apply(testEditor.getDocument());
 			}
 		} catch (CoreException e) {
 			throw new RuntimeException(e);
@@ -66,18 +69,19 @@ public class KotlinUnresolvedClassFixTestCase extends KotlinProjectTestCase {
 
 		EditorTestUtils.assertByEditor(testEditor.getEditor(), expected);
 	}
-
-	private List<IMarkerResolution> collectResolutions(IMarker[] markers) {
-		List<IMarkerResolution> resolutions = new ArrayList<>();
-		for (IMarker marker : markers) {
-			if (IDE.getMarkerHelpRegistry().hasResolutions(marker)) {
-				IMarkerResolution[] markerResolutions = IDE.getMarkerHelpRegistry().getResolutions(marker);
-		        if (markerResolutions.length > 0) {
-		        	resolutions.add(markerResolutions[0]);
-		        }
-			}
+	
+	private List<ICompletionProposal> createProposals(JavaEditor editor, IMarker[] markers) {
+		KotlinCorrectionProcessor correctionProcessor = new KotlinCorrectionProcessor(editor);
+		List<ICompletionProposal> proposals = new ArrayList<>();
+		for (IMarker marker: markers) {
+			int caret = marker.getAttribute(IMarker.CHAR_START, -1) + 1;
+			proposals.addAll(createProposals(correctionProcessor, editor, caret));
 		}
-
-		return resolutions;
+		
+		return proposals;
+    }
+	
+	private List<ICompletionProposal> createProposals(KotlinCorrectionProcessor correctionProcessor, JavaEditor editor, int caret) {
+		return Arrays.asList(correctionProcessor.computeQuickAssistProposals(new TextInvocationContext(editor.getViewer(), caret, -1)));
 	}
 }
