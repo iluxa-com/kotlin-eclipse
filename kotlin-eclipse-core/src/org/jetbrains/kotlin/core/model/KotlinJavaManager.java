@@ -48,7 +48,7 @@ public class KotlinJavaManager {
                 addFolderForKotlinClassFiles(javaProject);
             }
             
-            if (!ProjectUtils.isPathOnClasspath(javaProject, KOTLIN_BIN_FOLDER)) {
+            if (!ProjectUtils.isPathInClasspath(javaProject, KOTLIN_BIN_FOLDER)) {
                 ProjectUtils.addToClasspath(javaProject, KOTLIN_BIN_CLASSPATH_ENTRY);
             }
         } catch (CoreException e) {
