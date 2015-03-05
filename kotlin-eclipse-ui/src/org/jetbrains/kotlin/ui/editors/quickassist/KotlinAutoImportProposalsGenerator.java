@@ -60,18 +60,7 @@ public class KotlinAutoImportProposalsGenerator extends KotlinQuickAssistProposa
         }
         
         IMarker marker = DiagnosticAnnotationUtil.INSTANCE.getMarkerByOffset(EditorUtil.getFile(editor), caretOffset);
-        return marker != null ? isMarkerUnresolverReference(marker) : false;
-    }
-    
-    private boolean isMarkerUnresolverReference(@NotNull IMarker marker) {
-        try {
-            DiagnosticFactory<?> diagnostic = (DiagnosticFactory<?>) marker.getAttribute(AnnotationManager.IS_QUICK_FIXABLE);
-            return diagnostic != null ? DiagnosticAnnotationUtil.isUnresolvedReference(diagnostic) : false;
-        } catch (CoreException e) {
-            KotlinLogger.logAndThrow(e);
-        }
-        
-        return false;
+        return marker != null ? marker.getAttribute(AnnotationManager.IS_QUICK_FIXABLE, false) : false;
     }
     
     @NotNull

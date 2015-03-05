@@ -36,6 +36,7 @@ import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.core.builder.KotlinPsiManager;
 import org.jetbrains.kotlin.core.log.KotlinLogger;
+import org.jetbrains.kotlin.diagnostics.DiagnosticFactory;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
@@ -89,7 +90,10 @@ public class AnnotationManager {
             problemMarker.setAttribute(IMarker.CHAR_START, annotation.getRange().getStartOffset());
             problemMarker.setAttribute(IMarker.CHAR_END, annotation.getRange().getEndOffset());
             problemMarker.setAttribute(MARKED_TEXT, annotation.getMarkedText());
-            problemMarker.setAttribute(IS_QUICK_FIXABLE, annotation.getDiagnostic());
+            
+            DiagnosticFactory<?> diagnostic = annotation.getDiagnostic();
+            boolean isUnresolvedReference = diagnostic != null ? DiagnosticAnnotationUtil.isUnresolvedReference(diagnostic) : false;
+            problemMarker.setAttribute(IS_QUICK_FIXABLE, isUnresolvedReference); 
         } catch (CoreException e) {
             KotlinLogger.logAndThrow(e);
         }
