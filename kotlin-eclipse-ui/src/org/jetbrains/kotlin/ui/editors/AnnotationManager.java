@@ -47,7 +47,7 @@ public class AnnotationManager {
     public static final String ANNOTATION_ERROR_TYPE = "org.jetbrains.kotlin.ui.annotation.error";
     public static final String ANNOTATION_WARNING_TYPE = "org.jetbrains.kotlin.ui.annotation.warning";
     public static final String MARKED_TEXT = "markedText";
-    public static final String IS_QUICK_FIXABLE = "isQuickFixable";
+    public static final String IS_UNRESOLVED_REFERENCE = "isUnresolvedReference";
     
     public static final String MARKER_PROBLEM_TYPE = IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER;
     
@@ -93,7 +93,7 @@ public class AnnotationManager {
             
             DiagnosticFactory<?> diagnostic = annotation.getDiagnostic();
             boolean isUnresolvedReference = diagnostic != null ? DiagnosticAnnotationUtil.isUnresolvedReference(diagnostic) : false;
-            problemMarker.setAttribute(IS_QUICK_FIXABLE, isUnresolvedReference); 
+            problemMarker.setAttribute(IS_UNRESOLVED_REFERENCE, isUnresolvedReference); 
         } catch (CoreException e) {
             KotlinLogger.logAndThrow(e);
         }
