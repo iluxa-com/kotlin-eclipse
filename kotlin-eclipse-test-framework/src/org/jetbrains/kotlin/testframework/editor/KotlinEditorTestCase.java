@@ -115,9 +115,14 @@ public abstract class KotlinEditorTestCase {
         return testEditor;
     }
     
-    public static void deleteProjectAndCloseEditors() {
+    private void deleteProjectAndCloseEditors() {
         try {
             joinBuildThread();
+            PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().closeAllEditors(false);
+            
+            if (testEditor != null) {
+            	testEditor.getTestJavaProject().clean();
+            }
             
             IProject projects[] = ResourcesPlugin.getWorkspace().getRoot().getProjects();
             for (IProject project : projects) {
@@ -127,7 +132,6 @@ public abstract class KotlinEditorTestCase {
             e.printStackTrace();
         }
         
-        PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().closeAllEditors(false);
     }
     
     public static void refreshWorkspace() {

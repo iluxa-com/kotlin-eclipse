@@ -64,7 +64,7 @@ public abstract class KotlinTemplatesTestCase extends KotlinProjectTestCase {
 		} else {
 			Assert.assertTrue(proposals.length == 0);
 		}
-			
+		
 		EditorTestUtils.assertByEditor(editor, expected);
 	}
 	
