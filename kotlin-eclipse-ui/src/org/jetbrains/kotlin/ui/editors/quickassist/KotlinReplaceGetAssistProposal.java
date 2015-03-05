@@ -14,7 +14,6 @@ import org.jetbrains.kotlin.core.builder.KotlinPsiManager;
 import org.jetbrains.kotlin.core.log.KotlinLogger;
 import org.jetbrains.kotlin.core.resolve.KotlinAnalyzer;
 import org.jetbrains.kotlin.eclipse.ui.utils.EditorUtil;
-import org.jetbrains.kotlin.eclipse.ui.utils.IndenterUtil;
 import org.jetbrains.kotlin.psi.JetCallExpression;
 import org.jetbrains.kotlin.psi.JetExpression;
 import org.jetbrains.kotlin.psi.JetQualifiedExpression;
@@ -42,7 +41,7 @@ public class KotlinReplaceGetAssistProposal extends KotlinQuickAssistProposal {
         
         JetQualifiedExpression qualifiedExpression = PsiTreeUtil.getParentOfType(psiElement, JetQualifiedExpression.class);
         if (qualifiedExpression == null) {
-            return;
+            return; 
         }
         
         KotlinEditor activeEditor = getActiveEditor();
@@ -73,7 +72,7 @@ public class KotlinReplaceGetAssistProposal extends KotlinQuickAssistProposal {
             
             document.replace(
                     getStartOffset(element, editor), 
-                    element.getTextLength() + IndenterUtil.getLineSeparatorsOccurences(element.getText()), 
+                    element.getTextLength(), 
                     indexExpression.getText());
         } catch (BadLocationException e) {
             KotlinLogger.logAndThrow(e);
