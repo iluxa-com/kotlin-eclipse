@@ -120,6 +120,10 @@ public abstract class KotlinEditorTestCase {
             joinBuildThread();
             PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().closeAllEditors(false);
             
+            if (testEditor.getTestJavaProject() != null) {
+            	testEditor.getTestJavaProject().clean();
+            }
+            
             IProject projects[] = ResourcesPlugin.getWorkspace().getRoot().getProjects();
             for (IProject project : projects) {
                 project.delete(true, true, null);
