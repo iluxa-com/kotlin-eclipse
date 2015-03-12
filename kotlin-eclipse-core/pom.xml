@@ -16,6 +16,14 @@
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>eclipse-plugin</packaging>
 	
+	<dependencies>
+	    <dependency>
+	        <groupId>org.jetbrains.kotlin</groupId>
+	        <artifactId>kotlin-stdlib</artifactId>
+	        <version>0.1-SNAPSHOT</version>
+	    </dependency>
+	</dependencies>
+	
 
     <build>
         <sourceDirectory>src</sourceDirectory>
